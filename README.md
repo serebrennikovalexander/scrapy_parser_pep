@@ -20,7 +20,6 @@ cd scrapy_parser_pep
 
 Cоздать и активировать виртуальное окружение:
 
-Linux
 ```
 python3 -m venv venv
 source venv/bin/activate
@@ -28,7 +27,6 @@ source venv/bin/activate
 
 Установить зависимости из файла requirements.txt:
 
-Linix
 ```
 python3 -m pip install --upgrade pip
 pip3 install -r requirements.txt
