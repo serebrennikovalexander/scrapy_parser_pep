@@ -1,38 +1,34 @@
 import csv
-from datetime import datetime
-from pep_parse.settings import BASE_DIR
+from collections import defaultdict
 
 from itemadapter import ItemAdapter
+
+from pep_parse.settings import BASE_DIR, FILE_NAME
 
 
 class PepParsePipeline:
 
-    def __init__(self):
-        self.number_of_pep = {}
-        self.total = 0
-
     def open_spider(self, spider):
-        now = datetime.now()
-        formatted_time = now.strftime("%Y-%m-%d_%H-%M-%S")
-        file_name = f"status_summary_{formatted_time}.csv"
-        downloads_dir = BASE_DIR / "results"
-        downloads_dir.mkdir(exist_ok=True)
-        archive_path = downloads_dir / file_name
-        self.file = open(archive_path, "w", newline="")
+
+        self.number_of_pep = defaultdict(int)
+
+        DOWNLOADS_DIR = BASE_DIR / 'results'
+        DOWNLOADS_DIR.mkdir(exist_ok=True)
+        archive_path = DOWNLOADS_DIR / FILE_NAME
+        self.file = open(archive_path, 'w', newline='')
         self.writer = csv.writer(self.file)
-        self.writer.writerow(["Статус", "Количество"])
+        self.writer.writerow(['Статус', 'Количество'])
 
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
 
-        if "status" in adapter.keys():
-            status = adapter["status"]
-            self.total += 1
-            self.number_of_pep[status] = self.number_of_pep.get(status, 0) + 1
+        if 'status' in adapter.keys():
+            status = adapter['status']
+            self.number_of_pep[status] += 1
 
         return item
 
     def close_spider(self, spider):
+        self.number_of_pep['Total'] = sum(self.number_of_pep.values())
         self.writer.writerows(self.number_of_pep.items())
-        self.writer.writerow(["Total", self.total])
         self.file.close()
